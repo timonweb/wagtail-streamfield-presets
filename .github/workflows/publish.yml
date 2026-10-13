@@ -67,6 +67,7 @@ jobs:
       - run: uv run --isolated --no-project --with dist/*.tar.gz python .github/scripts/smoke_test_build.py
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
+          name: dist
           path: ./dist
   publish:
     needs: build
@@ -76,10 +77,15 @@ jobs:
       id-token: write # required for trusted publishing
     environment: pypi
     steps:
+      # Downloaded by name, which extracts straight into `path`; downloading every artifact
+      # nests each under its own name only when there's more than one.
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+          path: dist/
       - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with:
-          packages-dir: artifact/
+          packages-dir: dist/
           print-hash: true
   github-release:
     needs: [check-release, publish]
@@ -91,10 +97,13 @@ jobs:
         with:
           persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+          path: dist/
       - env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
           VERSION: ${{ needs.check-release.outputs.version }}
         run: |
           python3 .github/scripts/release_notes.py "$VERSION" > notes.md
-          gh release create "$TAG" artifact/* --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes-file notes.md
+          gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes-file notes.md
