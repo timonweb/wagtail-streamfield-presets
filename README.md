@@ -11,7 +11,7 @@ With presets, an editor picks one from the list above the field and presses **Lo
 blocks appear, ready to fill in, so the editor's time goes on the words instead of the
 layout.
 
-![A preset picker above a StreamField in the Wagtail editor, with the blocks it loaded below](https://raw.githubusercontent.com/timonweb/wagtail-streamfield-presets/main/docs/images/editor-picker.png)
+![An editor opens the preset list above a StreamField, chooses Recipe, presses Load, and the recipe's blocks fill the field](https://raw.githubusercontent.com/timonweb/wagtail-streamfield-presets/main/docs/images/editor-picker.gif)
 
 - **Fills the field in the browser.** Nothing reloads, so the title and every other field
   keep what the editor typed.
