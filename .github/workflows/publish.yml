@@ -12,7 +12,9 @@ permissions: {}
 jobs:
   test:
     uses: ./.github/workflows/test.yml
-    permissions: {}
+    # A called workflow gets no more than this grants, and test.yml needs to read the code.
+    permissions:
+      contents: read
   build:
     needs: [test]
     runs-on: ubuntu-latest
