@@ -82,3 +82,18 @@ def test_a_page_saved_from_a_preset_stores_its_blocks(editor):
         ("paragraph", "Preset paragraph"),
     ]
     assert body[2].value[0]["label"] == "First link"
+
+
+def test_a_stream_can_name_its_picker(labelled_editor):
+    """
+    GIVEN: The create view of a page whose stream sets `preset_picker_label`
+    WHEN: The editor finds the picker by that label, chooses a preset and presses Load
+    THEN: The preset loads, and the placeholder reads "Choose…"
+    """
+    picker = labelled_editor.get_by_label("Start with a set of sections")
+    expect(picker.locator("option").first).to_have_text("Choose…")
+
+    picker.select_option(label="Introduction")
+    labelled_editor.get_by_role("button", name="Load", exact=True).click()
+
+    expect_introduction(labelled_editor)

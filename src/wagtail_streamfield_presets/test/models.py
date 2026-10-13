@@ -31,3 +31,14 @@ class PresetPage(Page):
     body = StreamField(SectionStream(), blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("body")]
+
+
+class LabelledSectionStream(SectionStream):
+    class Meta:
+        preset_picker_label = "Start with a set of sections"
+
+
+class LabelledPresetPage(Page):
+    body = StreamField(LabelledSectionStream(), blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("body")]

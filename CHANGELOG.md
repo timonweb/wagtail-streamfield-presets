@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - YYYY-MM-DD
+
+### Added
+
+- `Meta.preset_picker_label`: set the text above the picker per stream, so it can use your
+  editors' words. Defaults to "Start from a preset".
+- A how-to guide on wording presets and the picker.
+
+### Changed
+
+- The select's placeholder is now "Choose…" (was "Choose a preset…").
+- The confirmation is now "Replace the blocks in this field with “…”? Your changes to them
+  will be lost." (it no longer says "preset").
+
+Both read correctly under any picker label. They are visible text changes; nothing in the
+API or stored data changes.
+
 ## [0.1.0] - 2026-10-13
 
 ### Added

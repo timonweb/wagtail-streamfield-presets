@@ -13,7 +13,11 @@ from wagtail.blocks.stream_block import StreamBlockAdapter
 from wagtail.models import Page
 
 from wagtail_streamfield_presets.blocks import Preset, PresetStreamBlock
-from wagtail_streamfield_presets.test.models import PresetPage, SectionStream
+from wagtail_streamfield_presets.test.models import (
+    LabelledSectionStream,
+    PresetPage,
+    SectionStream,
+)
 
 
 def packed(block):
@@ -157,6 +161,54 @@ class TestPacking:
 
         assert preset["label"] == "Lazy label"
         assert type(preset["label"]) is str
+
+
+class TestPickerLabel:
+    def test_a_stream_can_name_its_picker(self):
+        """
+        GIVEN: A stream declaring `preset_picker_label` in its Meta
+        WHEN: It is packed
+        THEN: The picker carries that label instead of the default
+        """
+        assert options(LabelledSectionStream())["strings"]["label"] == (
+            "Start with a set of sections"
+        )
+
+    def test_a_lazily_translated_picker_label_is_packed_as_text(self, monkeypatch):
+        """
+        GIVEN: A picker label that is a lazy translation, as a project's would be
+        WHEN: The block is packed
+        THEN: The label arrives as a plain string the browser can show
+        """
+        block = SectionStream()
+        monkeypatch.setattr(
+            block.meta, "preset_picker_label", gettext_lazy("Start with a template")
+        )
+
+        label = options(block)["strings"]["label"]
+
+        assert label == "Start with a template"
+        assert type(label) is str
+
+    def test_without_a_label_the_default_is_used(self):
+        """
+        GIVEN: A stream that sets no `preset_picker_label`
+        WHEN: It is packed
+        THEN: The picker says "Start from a preset"
+        """
+        assert options(SectionStream())["strings"]["label"] == "Start from a preset"
+
+    @pytest.mark.parametrize("name", ["placeholder", "confirm"])
+    def test_the_other_picker_text_never_says_preset(self, name):
+        """
+        GIVEN: A stream with a custom picker label
+        WHEN: The placeholder and confirmation are packed
+        THEN: Neither says "preset", so neither contradicts a label that calls presets
+              something else
+        """
+        text = options(LabelledSectionStream())["strings"][name]
+
+        assert "preset" not in text.replace("%(preset)s", "").lower()
 
 
 class TestDefinition:

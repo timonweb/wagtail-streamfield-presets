@@ -83,7 +83,8 @@ class ArticleStream(PresetStreamBlock):
 ```
 
 Use it like any StreamBlock: `body = StreamField(ArticleStream())`. Editors now see
-**Start from a preset** above the field.
+**Start from a preset** above the field. Set `preset_picker_label` in the same `Meta` to say
+it in your editors' words, such as "Start with a set of sections".
 
 Presets belong in `Meta`, not in the block's constructor arguments: Wagtail writes those into
 migrations, and a preset holds a function. Kept in `Meta`, editing a preset never needs a

@@ -29,6 +29,7 @@ class PresetStreamBlock(StreamBlock):
 
     class Meta:
         presets = ()
+        preset_picker_label = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -55,17 +56,19 @@ class PresetStreamBlock(StreamBlock):
         ]
 
 
-def picker_strings():
+def picker_strings(block):
     """Translated here rather than in the script, so the package needs no JavaScript
-    catalog. The confirmation names no count: plural rules differ by language, and the
-    count is only known in the browser."""
+    catalog. Only the label is configurable; the placeholder and confirmation never say
+    "preset", so they read correctly under any label, and the confirmation names no count
+    because plural rules differ by language and the count is only known in the browser."""
+    label = block.meta.preset_picker_label
     return {
-        "label": gettext("Start from a preset"),
-        "placeholder": gettext("Choose a preset…"),
+        "label": str(label) if label else gettext("Start from a preset"),
+        "placeholder": gettext("Choose…"),
         "load": gettext("Load"),
         "confirm": gettext(
-            "Replace the blocks in this field with the “%(preset)s” preset? Your "
-            "changes to them will be lost."
+            "Replace the blocks in this field with “%(preset)s”? Your changes to them "
+            "will be lost."
         ),
     }
 
@@ -76,7 +79,7 @@ class PresetStreamBlockAdapter(StreamBlockAdapter):
     def js_args(self, block):
         return [
             *super().js_args(block),
-            {"presets": block.preset_states(), "strings": picker_strings()},
+            {"presets": block.preset_states(), "strings": picker_strings(block)},
         ]
 
     @cached_property

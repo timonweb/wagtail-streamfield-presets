@@ -43,6 +43,22 @@ needs no migration.
 
 Raises `ImproperlyConfigured` on instantiation if two presets share a key.
 
+### `Meta.preset_picker_label`
+
+The text above the picker. Plain or lazily translated text. Defaults to "Start from a
+preset", translated into the editor's language.
+
+```python
+class BodyStream(PresetStreamBlock):
+    class Meta:
+        presets = [...]
+        preset_picker_label = _("Start with a set of sections")
+```
+
+Like `presets`, it lives in `Meta`, so changing it needs no migration. Only the label is
+configurable; the placeholder ("Choose…") and the confirmation never say "preset", so they
+read correctly under any label.
+
 ### `preset_value(preset) -> StreamValue`
 
 The value the editor receives for `preset`. The result of `preset.build()` goes through the
@@ -68,9 +84,11 @@ one preset.
 
 ## Translations
 
-The picker's text ("Start from a preset", "Choose a preset…", "Load" and the confirmation)
-is translated with Django's `gettext` on the server, in the editor's language. Preset
-labels are yours to translate, with `gettext_lazy`.
+The picker's own text (the default label "Start from a preset", the placeholder
+"Choose…", "Load", and the confirmation "Replace the blocks in this field with “…”? Your
+changes to them will be lost.") is translated with Django's `gettext` on the server, in the
+editor's language. Preset labels and a custom `preset_picker_label` are yours to translate,
+with `gettext_lazy`.
 
 ## Static files
 

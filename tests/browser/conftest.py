@@ -22,10 +22,7 @@ def root():
     )
 
 
-@pytest.fixture
-def editor(page, live_server, admin_client, root):
-    """The admin's create view for a page with a preset stream, logged in as a
-    superuser."""
+def open_create_view(page, live_server, admin_client, root, model):
     session = admin_client.cookies["sessionid"]
     page.context.add_cookies(
         [{"name": "sessionid", "value": session.value, "url": live_server.url}]
@@ -33,6 +30,20 @@ def editor(page, live_server, admin_client, root):
 
     page.goto(
         f"{live_server.url}/admin/pages/add/"
-        f"wagtail_streamfield_presets_test/presetpage/{root.pk}/"
+        f"wagtail_streamfield_presets_test/{model}/{root.pk}/"
     )
     return page
+
+
+@pytest.fixture
+def editor(page, live_server, admin_client, root):
+    """The admin's create view for a page with a preset stream, logged in as a
+    superuser."""
+    return open_create_view(page, live_server, admin_client, root, "presetpage")
+
+
+@pytest.fixture
+def labelled_editor(page, live_server, admin_client, root):
+    """The same, for a page whose stream names its picker "Start with a set of
+    sections"."""
+    return open_create_view(page, live_server, admin_client, root, "labelledpresetpage")

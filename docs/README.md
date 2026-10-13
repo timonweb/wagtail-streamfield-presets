@@ -12,6 +12,7 @@ Predefined sets of blocks that editors can load into a Wagtail StreamField.
 - [Start a preset with content from the database](how-to/database-presets.md)
 - [Offer several presets on one field](how-to/several-presets.md)
 - [Check your presets in tests](how-to/testing-presets.md)
+- [Word the picker for your editors](how-to/wording.md)
 
 ## Reference
 

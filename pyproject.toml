@@ -1,6 +1,6 @@
 [project]
 name = "wagtail-streamfield-presets"
-version = "0.1.0"
+version = "0.2.0"
 description = "Predefined sets of blocks that editors can load into a Wagtail StreamField."
 readme = "README.md"
 license = "BSD-3-Clause"
