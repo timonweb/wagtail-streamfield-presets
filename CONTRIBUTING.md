@@ -115,9 +115,10 @@ just compilemessages
 On the `main` branch:
 
 1. Update the version number in `pyproject.toml`. It is the only place it lives; the package reads it back from its metadata.
-2. Update the [CHANGELOG](CHANGELOG.md).
-3. Commit and tag the release. (`git commit -m "Release v0.1.1" && git tag -a v0.1.1 -m "Release v0.1.1" && git push && git push --tags`)
-4. Create a GitHub release from the tag. The CI will automatically build and publish the package to PyPI.
+2. Move the [CHANGELOG](CHANGELOG.md)'s unreleased entries under a `## [x.y.z] - YYYY-MM-DD` heading.
+3. Commit, tag and push. (`git commit -am "Release v0.1.1" && git tag -a v0.1.1 -m "Release v0.1.1" && git push && git push origin v0.1.1`)
+
+Pushing the tag runs `publish.yml`, which does the rest: it checks that the tag matches the version in `pyproject.toml` and that the CHANGELOG has notes for it, runs the tests, builds and smoke-tests the package, publishes it to PyPI, and creates the GitHub release with those notes and the built files.
 
 ### One-time setup before the first release
 
