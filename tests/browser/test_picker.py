@@ -67,8 +67,10 @@ def test_a_page_saved_from_a_preset_stores_its_blocks(editor):
     """
     title = editor.locator("#id_title")
     title.fill("From a preset")
-    # Wagtail copies the title into the slug on blur, which `fill` alone doesn't cause.
+    # Wagtail copies the title into the slug on blur, which `fill` alone doesn't cause, and
+    # after a short delay, so saving straight away can find the slug still empty.
     title.blur()
+    expect(editor.locator("#id_slug")).to_have_value("from-a-preset")
     load(editor)
 
     editor.get_by_role("button", name="Save draft").click()
