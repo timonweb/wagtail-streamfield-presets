@@ -1,0 +1,55 @@
+name: Latest Wagtail Test
+
+on:
+  schedule:
+    - cron: '52 2 * * *'
+  # A manual run tests even a release that has already passed.
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  find-wagtail-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tested: ${{ steps.tested.outputs.cache-hit }}
+
+    steps:
+      - id: release
+        run: echo "version=$(curl -sSfL https://pypi.org/pypi/wagtail/json | jq -r .info.version)" >> "$GITHUB_OUTPUT"
+      # The cache entry is only a record that the release has passed; its content is unused.
+      - id: tested
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .wagtail-tested
+          key: wagtail-tested-${{ steps.release.outputs.version }}
+
+  latest-wagtail-test:
+    needs: find-wagtail-release
+    if: ${{ needs.find-wagtail-release.outputs.tested != 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      WAGTAIL_VERSION: ${{ needs.find-wagtail-release.outputs.version }}
+      WEBHOOK_EXISTS: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - run: uv sync --dev
+      - run: uv add "wagtail==$WAGTAIL_VERSION"
+      - run: uv run playwright install --with-deps chromium
+      - run: uv run pytest -vv
+      - run: echo "$WAGTAIL_VERSION" > .wagtail-tested
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .wagtail-tested
+          key: wagtail-tested-${{ env.WAGTAIL_VERSION }}
+      - run: ./.github/scripts/report_nightly_build_failure.py
+        if: ${{ failure() && env.WEBHOOK_EXISTS == 'true' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

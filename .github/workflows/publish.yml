@@ -1,0 +1,56 @@
+# See https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
+# for a detailed guide
+name: Publish to PyPI
+
+on:
+  release:
+    # https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#release
+    types: [published]
+
+permissions: {}
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    permissions: {}
+  build:
+    needs: [test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        # Prevent cache poisoning by disabling cache.
+        with:
+          enable-cache: false
+      # Compiled here, into the tree that gets built, so the .mo files ship in the package.
+      # Skipped while there are no catalogs, so the first translation needs no workflow change.
+      - name: Compile translation catalogs, if any
+        run: |
+          if compgen -G "src/wagtail_streamfield_presets/locale/*/LC_MESSAGES/*.po" > /dev/null; then
+            sudo apt-get install -y gettext
+            cd src && uv run ../demo/manage.py compilemessages
+          fi
+      - run: uv build --verbose
+      # Smoke tests with ready-to-publish package.
+      - run: uv run --isolated --no-project --with dist/*.whl python .github/scripts/smoke_test_build.py
+      - run: uv run --isolated --no-project --with dist/*.tar.gz python .github/scripts/smoke_test_build.py
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          path: ./dist
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: none
+      id-token: write # required for trusted publishing
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          packages-dir: artifact/
+          print-hash: true

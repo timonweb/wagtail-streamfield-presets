@@ -1,0 +1,18 @@
+.streamfield-presets {
+  /* The custom properties are read with fallbacks rather than declared here, so a project
+     can set them on any ancestor, :root included. */
+  margin-bottom: var(--streamfield-presets-spacing, 1rem);
+}
+
+.streamfield-presets__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--streamfield-presets-gap, 0.5rem);
+}
+
+.streamfield-presets__controls select {
+  /* The admin stretches selects to the field's width, which would push the button to a
+     line of its own. */
+  width: auto;
+  min-width: 14rem;
+}
